@@ -12,7 +12,7 @@
 ## **Where:**
 ##
 ## * ```input-dir``` is the directory containing the input directories.
-## * ``output-dir`` is the directory where the repository should be created.
+## * ```output-dir``` is the directory where the repository should be created.
 ##   It must not yet exist.
 ## * ```include-dir``` is an optional directory containing a set of files to
 ##   be included in each commit.
