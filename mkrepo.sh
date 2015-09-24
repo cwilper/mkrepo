@@ -87,7 +87,7 @@ if [ "$1" = "--help" ]; then
 fi
 
 if [ "$1" = "--version" ]; then
-    echo "mkrepo unreleased from https://github.com/cwilper/mkrepo"
+    echo "mkrepo v1.0.0 from https://github.com/cwilper/mkrepo"
     exit 0
 fi
 
