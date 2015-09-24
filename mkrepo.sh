@@ -5,6 +5,9 @@
 ## Makes a tagged git repository out of a series of input directories
 ## representing significant states of a source tree.
 ##
+## For a script that does the opposite, see
+## [unmkrepo](https://github.com/cwilper/mkrepo/blob/master/README-unmkrepo.md).
+##
 ## **Usage:**
 ##
 ##     mkrepo.sh input-dir output-dir [include-dir]

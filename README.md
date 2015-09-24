@@ -3,6 +3,9 @@
 Makes a tagged git repository out of a series of input directories
 representing significant states of a source tree.
 
+For a script that does the opposite, see
+[unmkrepo](https://github.com/cwilper/mkrepo/blob/master/README-unmkrepo.md).
+
 **Usage:**
 
     mkrepo.sh input-dir output-dir [include-dir]
@@ -10,7 +13,7 @@ representing significant states of a source tree.
 **Where:**
 
 * ```input-dir``` is the directory containing the input directories.
-* ``output-dir`` is the directory where the repository should be created.
+* ```output-dir``` is the directory where the repository should be created.
   It must not yet exist.
 * ```include-dir``` is an optional directory containing a set of files to
   be included in each commit.

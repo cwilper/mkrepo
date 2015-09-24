@@ -2,7 +2,8 @@
 
 Makes a series of directories out of a git repository, one for each tag.
 
-This has the opposite effect of [mkrepo](README.md).
+This has the opposite effect of
+[mkrepo](https://github.com/cwilper/mkrepo/blob/master/README.md).
 
 **Usage:**
 
