@@ -89,7 +89,9 @@ orig_branch=$(git rev-parse --abbrev-ref HEAD)
 
 echo "Creating directory $output_dir"
 
-mkdir ../$output_dir || die "Unable to create directory"
+if [[ ! -d "../$output_dir" ]]; then
+    mkdir ../$output_dir || die "Unable to create directory"
+fi
 
 # make sure the .git dir is restored on exit
 pushd . > /dev/null 2>&1
