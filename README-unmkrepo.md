@@ -20,7 +20,7 @@ This has the opposite effect of
 
 When you run this script, all tags (or the specified subset) from the
 repository in ```input-dir``` will be checked out, and the state of the
-source tree for each will be copied in to a subdirectory of ```output-dir```.
+source tree for each will be copied into a subdirectory of ```output-dir```.
 
 If the commit message for any of the tagged commits consists of anything
 other than the tag name itself, a ```.txt``` file will be written alongside
