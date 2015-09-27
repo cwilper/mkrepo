@@ -176,13 +176,53 @@ for tagname in "${tags[@]}"; do
     # add changes to index
     git add -A . > /dev/null 2>&1 || die "Error adding changes to index"
 
-    # commit changes with appropriate message
+    commit_args=(commit)
+
+    if [[ -f "../$input_dir/$tagname.author" ]]; then
+        author_file="../$input_dir/$tagname.author"
+    else
+        author_file="../$input_dir/author"
+    fi
+    if [[ -f $author_file ]]; then
+        commit_args+=(--author="$(cat $author_file)")
+    fi
+
+    unset GIT_COMMITTER_EMAIL
+    unset GIT_COMMITTER_NAME
+    if [[ -f "../$input_dir/$tagname.committer" ]]; then
+        committer_file="../$input_dir/$tagname.committer"
+    else
+        committer_file="../$input_dir/committer"
+    fi
+    if [[ -f $committer_file ]]; then
+        export GIT_COMMITTER_EMAIL=$(sed 's/.*<\(.*\)>$/\1/' $committer_file)
+        export GIT_COMMITTER_NAME=$(sed 's/\(.*\) <.*/\1/' $committer_file)
+    fi
+
+    unset GIT_AUTHOR_DATE
+    unset GIT_COMMITTER_DATE
+    date_file="../$input_dir/$tagname.date"
+    if [[ -f $date_file ]]; then
+        date_value=$(cat $date_file)
+        export GIT_AUTHOR_DATE="$date_value"
+        export GIT_COMMITTER_DATE="$date_value"
+    else
+        if [[ -f "../$input_dir/$tagname.author-date" ]]; then
+            export GIT_AUTHOR_DATE=$(cat "../$input_dir/$tagname.author-date")
+        fi
+        if [[ -f "../$input_dir/$tagname.committer-date" ]]; then
+            export GIT_COMMITTER_DATE=$(cat "../$input_dir/$tagname.committer-date")
+        fi
+    fi
+
     message_file="../$input_dir/$tagname.txt"
     if [[ -f $message_file ]]; then
-        git commit -F "$message_file" > /dev/null 2>&1 || die "Error committing"
+        commit_args+=(-F $message_file)
     else
-        git commit -m "$tagname"  > /dev/null 2>&1 || die "Error committing"
+        commit_args+=(-m $tagname)
     fi
+
+    git "${commit_args[@]}" > /dev/null 2>&1 || die "Error committing"
 
     # tag the commit
     git tag "$tagname" > /dev/null 2>&1 || die "Error tagging $tagname"
