@@ -20,9 +20,10 @@ For a script that does the opposite, see
 
 ## Basic Operation
 
-When you run this script, all directories within ```input-dir``` will be
-traversed in alphanumeric order, and a new commit will be created for each.
-Each commit will be tagged using the directory name.
+When you run this script, the directories within ```input-dir``` will be
+visited, and a new commit will be created for each. Each commit will be
+tagged using the directory name. The order of processing is alphanumerical
+by default, but may be customized.
 
 Prior to each commit, a scan will be performed for empty directories.
 For each found, an empty ```.gitignore``` file will be placed within,
@@ -52,18 +53,7 @@ baseline for a newer version. See the demo for an example.
 
 ### Non-Alphanumeric Ordering
 
-If you want tag names that occur in non-alphanumeric order, you may
-prepend your directory names with a number to ensure correct processing
-order, e.g.:
-
-    input-dir/01-very-first
-    input-dir/02-second
-
-Then rename the tags after the repository is created, e.g:
-
-    mkrepo.sh input-dir output-dir
-    cd output-dir
-    git tag very-first 01-very-first
-    git tag -d 01-very-first
-    git tag second 02-second
-    git tag -d second
+If you want directories to be processed in non-alphanumerical order,
+you may create a file in the input directory called ```mkrepo.order```
+containing a list of the directories/tags, one per line, in the order you
+want them processed.

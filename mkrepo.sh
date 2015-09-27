@@ -22,9 +22,10 @@
 ##
 ## ## Basic Operation
 ##
-## When you run this script, all directories within ```input-dir``` will be
-## traversed in alphanumeric order, and a new commit will be created for each.
-## Each commit will be tagged using the directory name.
+## When you run this script, the directories within ```input-dir``` will be
+## visited, and a new commit will be created for each. Each commit will be
+## tagged using the directory name. The order of processing is alphanumerical
+## by default, but may be customized.
 ##
 ## Prior to each commit, a scan will be performed for empty directories.
 ## For each found, an empty ```.gitignore``` file will be placed within,
@@ -54,21 +55,10 @@
 ##
 ## ### Non-Alphanumeric Ordering
 ##
-## If you want tag names that occur in non-alphanumeric order, you may
-## prepend your directory names with a number to ensure correct processing
-## order, e.g.:
-##
-##     input-dir/01-very-first
-##     input-dir/02-second
-##
-## Then rename the tags after the repository is created, e.g:
-##
-##     mkrepo.sh input-dir output-dir
-##     cd output-dir
-##     git tag very-first 01-very-first
-##     git tag -d 01-very-first
-##     git tag second 02-second
-##     git tag -d second
+## If you want directories to be processed in non-alphanumerical order,
+## you may create a file in the input directory called ```mkrepo.order```
+## containing a list of the directories/tags, one per line, in the order you
+## want them processed.
 
 temp_path=/tmp/mkrepo.tmp
 
@@ -119,29 +109,39 @@ if [[ -f "$temp_path/config" ]]; then
     rm -rf "$temp_path" || die "Unable to delete $temp_path"
 fi
 
+cd $input_dir
+if [[ -f "mkrepo.order" ]]; then
+    tags=($(cat mkrepo.order))
+else
+    tags=($(ls|grep -v \.txt$|grep -v \.branch$|grep -v ^mkrepo.order$|sort))
+fi
+cd ..
+
 echo "Creating repository at $output_dir"
 
-for input_path in "$input_dir"/*; do
+numtags=${#tags[@]}
+
+tagnum=0
+for tagname in "${tags[@]}"; do
+    let "tagnum++"
 
     # skip files; we only want dirs
-    if [[ -f "$input_path" ]]; then
+    if [[ -f "$input_dir/$tagname" ]]; then
         continue
     fi
 
-    tagname="$(basename $input_path)"
-
     # if output-dir exists, move the repo aside and nuke the dir first
     if [[ -d $output_dir ]]; then
-        cd $output_dir
+        cd "$output_dir"
 
         # create a temporary branch if needed
-        branch_file="../$input_path.branch"
+        branch_file="../$input_dir/$tagname.branch"
         if [[ -f $branch_file ]]; then
             parent_branch=$(cat $branch_file)
-            echo "Adding $tagname as branched child of $parent_branch"
+            echo "Adding $tagname [$tagnum/$numtags] as branched child of $parent_branch"
             git checkout -b tmp $parent_branch > /dev/null 2>&1 || die "Unable to create tmp branch from $parent_branch"
         else
-            echo "Adding $tagname as latest child of master"
+            echo "Adding $tagname [$tagnum/$numtags] as latest child of master"
         fi
 
         cd ..
@@ -149,11 +149,11 @@ for input_path in "$input_dir"/*; do
         mv "$output_dir/.git" /tmp/mkrepo.tmp
         rm -rf "$output_dir"
     else
-        echo "Adding $tagname as root commit on master"
+        echo "Adding $tagname [$tagnum/$numtags] as root commit on master"
     fi
 
-    # copy everything in input_path into output-dir
-    cp -r "$input_path" "$output_dir"
+    # copy everything in $input_dir/$tagname into output-dir
+    cp -r "$input_dir/$tagname" "$output_dir" || die "Unable to copy $input_dir/$tagname to $output_dir from $(pwd)"
 
     # add includes if needed
     if [[ -n $include_dir ]]; then
@@ -177,7 +177,7 @@ for input_path in "$input_dir"/*; do
     git add -A . > /dev/null 2>&1 || die "Error adding changes to index"
 
     # commit changes with appropriate message
-    message_file="../$input_path.txt"
+    message_file="../$input_dir/$tagname.txt"
     if [[ -f $message_file ]]; then
         git commit -F "$message_file" > /dev/null 2>&1 || die "Error committing"
     else
