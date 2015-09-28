@@ -116,6 +116,12 @@ for tagname in "${tags[@]}"; do
     cp -r . ../$output_dir/$tagname > /dev/null 2>&1 || die "Unable to copy source tree"
     mv $temp_path .git
 
+    # save the author and committer names, emails, and dates
+    git log --format="%an <%ae>" -n 1 HEAD > ../$output_dir/$tagname.author
+    git log --format=%ai -n 1 HEAD > ../$output_dir/$tagname.author-date
+    git log --format="%cn <%ce>" -n 1 HEAD > ../$output_dir/$tagname.committer
+    git log --format=%ci -n 1 HEAD > ../$output_dir/$tagname.committer-date
+
     # save the commit message as a .txt file, keeping it if it's not the same as the tag
     git log --format=%B -n 1 HEAD | sed '$ d' > ../$output_dir/$tagname.txt
     msg=$(cat ../$output_dir/$tagname.txt)
